@@ -1,0 +1,9 @@
+{
+    "name": "CatLendar",
+    "description": "Now the cat books appointments for you! Notice: this plugin uses an experimental feature of the cat (Forms).",
+    "version": "0.0.1",
+    "plugin_url": "https://github.com/jacopopalumbo01",
+    "author_name": "The Golden At SRL",
+    "author_url": "https://www.thegoldenat.com/",
+    "tags": "calendar, booking, chatbot"
+}
