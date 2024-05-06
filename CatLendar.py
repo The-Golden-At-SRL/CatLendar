@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, create_model
 
 import json
 
@@ -6,15 +6,28 @@ from cat.experimental.form import form, CatForm, CatFormState
 from cat.log import log
 from .calendar import getAvailableDates, bookDate
 
-class CalendarBooking(BaseModel):
-    name: str
-    email: str
-    phoneNumber: str
-    bookingDate: str
-    
+# class CalendarBooking(BaseModel):
+#     name: str
+#     email: str
+#     phoneNumber: str
+#     bookingDate: str
+
 @form
 class CalendarBookingForm(CatForm):
     description = "Book an appointment from those available"
+    
+    initJsonStr = '{"name": "str", "email": "str", "phoneNumber": "str", "bookingDate": "str"}'
+    initJson = json.loads(initJsonStr)  
+
+    # Create a dictionary of field names and types from initJson
+    fields_dict = {key: (value, ...) for key, value in initJson.items()}
+    
+    # Dynamically create a Pydantic model
+    CalendarBooking = create_model('CalendarBooking', **fields_dict)
+    
+    log.debug(CalendarBooking.schema_json(indent=2))
+    
+    
     model_class = CalendarBooking
     start_examples = [
         "I want to book an appointment",
