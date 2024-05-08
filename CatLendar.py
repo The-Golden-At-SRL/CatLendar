@@ -1,5 +1,6 @@
 from pydantic import BaseModel, create_model
 
+import os
 import json
 
 from cat.experimental.form import form, CatForm, CatFormState
@@ -10,9 +11,16 @@ from .calendar import getAvailableDates, bookDate
 class CalendarBookingForm(CatForm):
     description = "Book an appointment from those available"
     
-    initJsonStr = '{"name": "str", "email": "str", "phoneNumber": "str", "bookingDate": "str"}'
-    initJson = json.loads(initJsonStr)  
-
+    jsonPath = os.path.join(
+        os.path.dirname(__file__), "fields.json"
+    )
+    
+    # Import fields structure
+    with open(jsonPath, "r") as jsonFile:
+        initJson = json.load(jsonFile)
+        # Add booking date
+        initJson["bookingDate"] = "str"
+    
     # Create a dictionary of field names and types from initJson
     fields_dict = {key: (value, ...) for key, value in initJson.items()}
     
@@ -163,9 +171,9 @@ class CalendarBookingForm(CatForm):
             \"{history_string}\""""
             
             context = self.cat.llm(contextPrompt)
-            
+
         # Book it
-        bookDate(choosendDate, choosenHour, context, form_data["name"], form_data["email"], form_data["phoneNumber"])
+        bookDate(choosendDate, choosenHour, context, form_data)
         
         # Generate final phrase
         prompt = f"""Your task is to tell the user that his appointment has been booked. You should write the phrase in {lang}."""
