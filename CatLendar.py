@@ -6,12 +6,6 @@ from cat.experimental.form import form, CatForm, CatFormState
 from cat.log import log
 from .calendar import getAvailableDates, bookDate
 
-# class CalendarBooking(BaseModel):
-#     name: str
-#     email: str
-#     phoneNumber: str
-#     bookingDate: str
-
 @form
 class CalendarBookingForm(CatForm):
     description = "Book an appointment from those available"
@@ -118,6 +112,7 @@ class CalendarBookingForm(CatForm):
         # Get settings
         settings = self.cat.mad_hatter.get_plugin().load_settings()
         lang = settings["language"]
+        generate_context = settings["generate_context"]
                 
         # Separate date and hour from user result
         availableDates = getAvailableDates()
@@ -135,9 +130,9 @@ class CalendarBookingForm(CatForm):
         ```
         
         User said: "{form_data["bookingDate"]}"
-        
         """
         response = self.cat.llm(datePrompt)
+        log.debug(response)
                 
         datePrompt = f"""Your task is to print only the date in the format dd/mm/yyyy from the following json: 
         {response}
@@ -152,8 +147,25 @@ class CalendarBookingForm(CatForm):
         log.debug(choosendDate)
         log.debug(choosenHour)
         
+        # Generate chat context
+        context = ""
+        if generate_context: 
+            history = getattr(self.cat, "working_memory").history[:(-len(form_data) * 2)]
+            
+            history_string = ""
+            for turn in history:
+                history_string += f"\n - {turn['who']}: {turn['message']}"
+            
+            log.debug(history_string)
+            contextPrompt = f"""The user has booked an appointment. Your task is to give a title to the appointment based on the chat that you had before the booking with the user.
+            The title should be in {lang}.
+            The history of your chat with the user is:
+            \"{history_string}\""""
+            
+            context = self.cat.llm(contextPrompt)
+            
         # Book it
-        bookDate(choosendDate, choosenHour, form_data["name"], form_data["email"], form_data["phoneNumber"])
+        bookDate(choosendDate, choosenHour, context, form_data["name"], form_data["email"], form_data["phoneNumber"])
         
         # Generate final phrase
         prompt = f"""Your task is to tell the user that his appointment has been booked. You should write the phrase in {lang}."""

@@ -22,7 +22,7 @@ def getAvailableDates():
     return allDates 
 
 # Books an appointment
-def bookDate(date, hour, name, email, phoneNumber):
+def bookDate(date, hour, context, name, email, phoneNumber):
     toSave = []
     with open(csvPath, "r") as csvFile:
         csvCalendar = csv.DictReader(csvFile)
@@ -32,13 +32,14 @@ def bookDate(date, hour, name, email, phoneNumber):
                 row["name"] = name
                 row["email"] = email
                 row["tel"] = phoneNumber
+                row["context"] = context
                 row["booked"] = "True"
             toSave.append(row)
 
     # And now save it
     with open(csvPath, "w") as csvFile:
         log.debug(toSave)
-        fieldnames = ["date", "hour", "name", "email", "tel", "booked"]
+        fieldnames = ["date", "hour", "name", "email", "tel", "context", "booked"]
         writer = csv.DictWriter(csvFile, fieldnames=fieldnames)
         
         writer.writeheader()
