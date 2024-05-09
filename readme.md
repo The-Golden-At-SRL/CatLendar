@@ -59,5 +59,6 @@ The added fields are always inserted between `date,hour` and `context,booked`.
 
 ## Future Roadmap
 - Expand the availability proposal to make it more "intelligent"
+- Add data validation
 - Add an integration with external service
 - Integration with WordPress
