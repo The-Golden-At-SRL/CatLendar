@@ -138,22 +138,15 @@ class CalendarBookingForm(CatForm):
         ```
         
         User said: "{form_data["bookingDate"]}"
+        
+        ```json
         """
         response = self.cat.llm(datePrompt)
         log.debug(response)
-                
-        datePrompt = f"""Your task is to print only the date in the format dd/mm/yyyy from the following json: 
-        {response}
-        """
-        choosendDate = self.cat.llm(datePrompt)
         
-        hourPrompt = f"""Your task is to print only the time in the format hh:mm from the following json:
-        {response}
-        """
-        choosenHour = self.cat.llm(hourPrompt)
-        
-        log.debug(choosendDate)
-        log.debug(choosenHour)
+        dateJson = json.loads(response)
+
+        log.debug(dateJson)
         
         # Generate chat context
         context = ""
@@ -173,7 +166,7 @@ class CalendarBookingForm(CatForm):
             context = self.cat.llm(contextPrompt)
 
         # Book it
-        bookDate(choosendDate, choosenHour, context, form_data)
+        bookDate(dateJson["date"], dateJson["time"], context, form_data)
         
         # Generate final phrase
         prompt = f"""Your task is to tell the user that his appointment has been booked. You should write the phrase in {lang}."""
