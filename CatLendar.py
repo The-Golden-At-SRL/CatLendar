@@ -144,6 +144,9 @@ class CalendarBookingForm(CatForm):
         response = self.cat.llm(datePrompt)
         log.debug(response)
         
+        # Clear response
+        response.replace("json", "").replace("`", "")
+        
         dateJson = json.loads(response)
 
         log.debug(dateJson)
